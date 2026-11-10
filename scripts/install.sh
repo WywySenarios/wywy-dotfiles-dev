@@ -34,7 +34,8 @@ fi
 header "Syncing the Ansible toolchain ($REPO_ROOT)"
 uv sync --directory "$REPO_ROOT" --locked
 
-header "Initializing the opencode plugin submodule"
+header "Synchronizing and initializing the opencode plugin submodule"
+git -C "$REPO_ROOT" submodule sync --recursive
 git -C "$REPO_ROOT" submodule update --init --recursive
 
 header "Installing Ansible collections ($REPO_ROOT)"
