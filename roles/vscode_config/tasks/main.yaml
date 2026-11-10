@@ -15,7 +15,7 @@
 
 - name: Read the expected extension list
   ansible.builtin.set_fact:
-    vscode_config_extensions: "{{ lookup('file', vscode_config_dir ~ '/extensions.txt') | splitlines }}"
+    vscode_config_extensions: "{{ lookup('file', vscode_config_dir ~ '/extensions.txt').splitlines() }}"
 
 - name: List installed extensions
   ansible.builtin.command:
