@@ -22,13 +22,13 @@
   ansible.builtin.assert:
     that:
       - not (config_link_stat.stat.isdir | default(false))
-      - not (config_link_stat.stat.exists and not config_link_stat.stat.islnk and not config_link_stat.stat.isreg)
+      - not (config_link_stat.stat.exists and not (config_link_stat.stat.islnk | default(false)) and not (config_link_stat.stat.isreg | default(false)))
     fail_msg: "Refusing to deploy over {{ config_link_dest }}: it is not a regular file or symlink."
 
 - name: Refuse to retarget a foreign symlink
   ansible.builtin.assert:
     that:
-      - not config_link_stat.stat.islnk or config_link_stat.stat.lnk_target == config_link_source
+      - not (config_link_stat.stat.islnk | default(false)) or config_link_stat.stat.lnk_target == config_link_source
     fail_msg: >-
       Refusing to retarget {{ config_link_dest }}: it points to
       {{ config_link_stat.stat.lnk_target | default('a non-symlink') }}, expected {{ config_link_source }}.

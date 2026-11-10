@@ -107,7 +107,7 @@
     - name: Fail on a foreign PATH link
       ansible.builtin.assert:
         that:
-          - not item.stat.exists or (item.stat.islnk and item.stat.lnk_target == artifact_root ~ '/' ~ item.item.value)
+          - not item.stat.exists or ((item.stat.islnk | default(false)) and item.stat.lnk_target == artifact_root ~ '/' ~ item.item.value)
         fail_msg: >-
           Refusing to replace {{ item.item.key }}: it resolves to
           {{ item.stat.lnk_target | default('a non-symlink') }}, expected
