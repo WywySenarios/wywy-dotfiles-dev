@@ -19,10 +19,3 @@
   vars:
     config_link_source: "{{ dotfiles_repo_root }}/.bashrc"
     config_link_dest: "{{ ansible_env.HOME }}/.bashrc"
-
-- name: Link the bash login profile
-  ansible.builtin.include_role:
-    name: config_link
-  vars:
-    config_link_source: "{{ dotfiles_repo_root }}/.bash_profile"
-    config_link_dest: "{{ ansible_env.HOME }}/.bash_profile"
