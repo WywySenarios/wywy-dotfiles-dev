@@ -1,0 +1,5 @@
+---
+kind_version: "0.33.0"
+kind_sha256: aee6151561422756b764a4ae28e7f44cda5af5a9eead3cc9985112b1de8d8e0d
+kind_url: "https://kind.sigs.k8s.io/dl/v{{ kind_version }}/kind-linux-amd64"
+kind_root: "{{ ansible_env.HOME }}/.local/opt/kind"

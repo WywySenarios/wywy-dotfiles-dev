@@ -1,0 +1,48 @@
+---
+# CONVENTION EXCEPTION: Debian package versions are suite-defined and cannot be
+# pinned portably across stable releases. https://www.debian.org/releases/
+packages_required:
+  - git
+  - acl
+  - build-essential
+  - bash-completion
+  - curl
+  - ca-certificates
+  - gnupg
+  - gpg
+  - vim
+  - ripgrep
+  - shfmt
+  - rustfmt
+  - cargo
+  - clang-format
+  - python3
+  - python3-pip
+  - python3-venv
+  - xz-utils
+  # Installed after docker_repo.
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-buildx-plugin
+  - docker-compose-plugin
+
+# Every executable the repo provisions is reachable through ~/.local/bin.
+packages_links:
+  - { name: git, target: /usr/bin/git }
+  - { name: curl, target: /usr/bin/curl }
+  - { name: vim, target: /usr/bin/vim }
+  - { name: rg, target: /usr/bin/rg }
+  - { name: shfmt, target: /usr/bin/shfmt }
+  - { name: rustfmt, target: /usr/bin/rustfmt }
+  - { name: cargo, target: /usr/bin/cargo }
+  - { name: clang-format, target: /usr/bin/clang-format }
+  - { name: python3, target: /usr/bin/python3 }
+  - { name: pip3, target: /usr/bin/pip3 }
+  - { name: gpg, target: /usr/bin/gpg }
+  - { name: getfacl, target: /usr/bin/getfacl }
+  - { name: setfacl, target: /usr/bin/setfacl }
+  - { name: gcc, target: /usr/bin/gcc }
+  - { name: g++, target: /usr/bin/g++ }
+  - { name: make, target: /usr/bin/make }
+  - { name: docker, target: /usr/bin/docker }

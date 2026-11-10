@@ -1,0 +1,9 @@
+---
+npm_globals_node_root: "{{ ansible_env.HOME }}/.local/opt/node"
+npm_globals_npm_executable: "{{ npm_globals_node_root }}/bin/npm"
+npm_globals_packages:
+  - { name: prettier, version: "3.9.10" }
+  - { name: opencode-ai, version: "1.19.5" }
+npm_globals_links:
+  - { name: prettier, target: "{{ npm_globals_node_root }}/bin/prettier" }
+  - { name: opencode, target: "{{ npm_globals_node_root }}/bin/opencode" }

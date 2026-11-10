@@ -1,0 +1,10 @@
+---
+# Inputs are supplied by the calling role through include_role vars.
+artifact_name: ""
+artifact_url: ""
+artifact_sha256: ""
+artifact_root: ""
+artifact_archive: false
+artifact_strip_components: 1
+# name: relative path inside artifact_root
+artifact_links: {}

@@ -1,0 +1,2 @@
+---
+shell_bashrc_local: "{{ dotfiles_repo_root }}/.bashrc.d/local"

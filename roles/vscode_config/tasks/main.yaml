@@ -1,0 +1,42 @@
+---
+- name: Link the VS Code settings
+  ansible.builtin.include_role:
+    name: config_link
+  vars:
+    config_link_source: "{{ vscode_config_dir }}/settings.json"
+    config_link_dest: "{{ vscode_config_user_dir }}/settings.json"
+
+- name: Link the VS Code chat model settings
+  ansible.builtin.include_role:
+    name: config_link
+  vars:
+    config_link_source: "{{ vscode_config_dir }}/chatLanguageModels.json"
+    config_link_dest: "{{ vscode_config_user_dir }}/chatLanguageModels.json"
+
+- name: Read the expected extension list
+  ansible.builtin.set_fact:
+    vscode_config_extensions: "{{ lookup('file', vscode_config_dir ~ '/extensions.txt') | splitlines }}"
+
+- name: List installed extensions
+  ansible.builtin.command:
+    argv:
+      - "{{ vscode_config_code }}"
+      - --list-extensions
+  register: vscode_config_installed
+  changed_when: false
+  when: not ansible_check_mode
+
+- name: Install missing extensions
+  ansible.builtin.command:
+    argv:
+      - "{{ vscode_config_code }}"
+      - --install-extension
+      - "{{ item }}"
+      - --force
+  loop: "{{ vscode_config_extensions }}"
+  when:
+    - not ansible_check_mode
+    - item | length > 0
+    - not item.startswith('#')
+    - item not in vscode_config_installed.stdout_lines
+  changed_when: true

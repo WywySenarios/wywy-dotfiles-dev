@@ -1,0 +1,41 @@
+---
+- name: Require the Node.js toolchain
+  ansible.builtin.stat:
+    path: "{{ opencode_npm }}"
+  register: opencode_npm_stat
+  when: not ansible_check_mode
+
+- name: Fail when npm is missing
+  ansible.builtin.assert:
+    that:
+      - opencode_npm_stat.stat.exists
+    fail_msg: "opencode: install the node role first."
+  when: not ansible_check_mode
+
+- name: Require the initialized plugin submodule
+  ansible.builtin.stat:
+    path: "{{ opencode_plugin_dir }}/package.json"
+  register: opencode_plugin
+  when: not ansible_check_mode
+
+- name: Fail when the plugin submodule is missing
+  ansible.builtin.assert:
+    that:
+      - opencode_plugin.stat.exists
+    fail_msg: "opencode: run scripts/install.sh to initialize the opencode-rbash submodule."
+  when: not ansible_check_mode
+
+- name: Install the opencode config dependencies
+  community.general.npm:
+    path: "{{ opencode_repo_dir }}"
+    state: present
+    executable: "{{ opencode_npm }}"
+    production: true
+
+- name: Install the pinned plugin dependencies
+  ansible.builtin.command:
+    argv:
+      - "{{ opencode_npm }}"
+      - ci
+    chdir: "{{ opencode_plugin_dir }}"
+    creates: "{{ opencode_plugin_dir }}/node_modules"

@@ -1,0 +1,30 @@
+---
+- name: Provision the Wywy development machine
+  hosts: localhost
+  become: false
+  vars:
+    dotfiles_repo_root: "{{ playbook_dir | dirname }}"
+  pre_tasks:
+    - name: Check the target platform
+      ansible.builtin.assert:
+        that:
+          - ansible_architecture == "x86_64"
+          - ansible_os_family == "Debian"
+        fail_msg: "Unsupported platform {{ ansible_distribution }} {{ ansible_architecture }}; this playbook targets x86_64 Debian."
+  roles:
+    - docker_repo
+    - packages
+    - docker_group
+    - gh
+    - vscode
+    - node
+    - go
+    - gitleaks
+    - betterleaks
+    - kind
+    - air
+    - vscode_config
+    - python
+    - npm_globals
+    - opencode
+    - shell

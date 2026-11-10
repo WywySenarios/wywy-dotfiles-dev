@@ -1,0 +1,14 @@
+---
+- name: Install the Go toolchain
+  ansible.builtin.include_role:
+    name: artifact
+  vars:
+    artifact_name: go
+    artifact_url: "{{ go_archive_url }}"
+    artifact_sha256: "{{ go_sha256 }}"
+    artifact_root: "{{ go_root }}"
+    artifact_archive: true
+    artifact_strip_components: 1
+    artifact_links:
+      go: bin/go
+      gofmt: bin/gofmt

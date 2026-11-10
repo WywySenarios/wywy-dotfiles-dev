@@ -1,0 +1,3 @@
+---
+# Each entry: { name: <link name>, target: <absolute binary path> }
+local_bin_links: []

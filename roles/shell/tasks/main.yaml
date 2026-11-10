@@ -1,0 +1,28 @@
+---
+- name: Ensure the machine-local bash directory exists
+  ansible.builtin.file:
+    path: "{{ shell_bashrc_local }}"
+    state: directory
+    mode: "0755"
+
+- name: Write the machine-local agent environment
+  ansible.builtin.copy:
+    dest: "{{ shell_bashrc_local }}/agents.sh"
+    mode: "0644"
+    content: |
+      # Machine-local agent environment.
+      export PLAN_STORAGE_PATH="$HOME/Documents/wywy/internal/plans"
+
+- name: Link the bash entry files
+  ansible.builtin.include_role:
+    name: config_link
+  vars:
+    config_link_source: "{{ dotfiles_repo_root }}/.bashrc"
+    config_link_dest: "{{ ansible_env.HOME }}/.bashrc"
+
+- name: Link the bash login profile
+  ansible.builtin.include_role:
+    name: config_link
+  vars:
+    config_link_source: "{{ dotfiles_repo_root }}/.bash_profile"
+    config_link_dest: "{{ ansible_env.HOME }}/.bash_profile"

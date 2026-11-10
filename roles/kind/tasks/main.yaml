@@ -1,0 +1,12 @@
+---
+- name: Install kind
+  ansible.builtin.include_role:
+    name: artifact
+  vars:
+    artifact_name: kind
+    artifact_url: "{{ kind_url }}"
+    artifact_sha256: "{{ kind_sha256 }}"
+    artifact_root: "{{ kind_root }}"
+    artifact_archive: false
+    artifact_links:
+      kind: kind

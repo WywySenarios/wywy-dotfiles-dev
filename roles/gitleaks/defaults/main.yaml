@@ -1,0 +1,5 @@
+---
+gitleaks_version: "8.30.1"
+gitleaks_sha256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+gitleaks_archive_url: "https://github.com/gitleaks/gitleaks/releases/download/v{{ gitleaks_version }}/gitleaks_{{ gitleaks_version }}_linux_x64.tar.gz"
+gitleaks_root: "{{ ansible_env.HOME }}/.local/opt/gitleaks"

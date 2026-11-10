@@ -1,0 +1,46 @@
+---
+- name: Ensure the user PATH directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.local/bin"
+    state: directory
+    mode: "0755"
+
+- name: Stat every link target
+  ansible.builtin.stat:
+    path: "{{ item.target }}"
+  loop: "{{ local_bin_links }}"
+  register: local_bin_targets
+  when: not ansible_check_mode
+
+- name: Fail on a missing link target
+  ansible.builtin.assert:
+    that:
+      - item.stat.exists
+    fail_msg: "PATH link target does not exist: {{ item.item.target }}"
+  loop: "{{ local_bin_targets.results }}"
+  when: not ansible_check_mode
+
+- name: Stat every PATH destination
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/{{ item.name }}"
+  loop: "{{ local_bin_links }}"
+  register: local_bin_stats
+
+- name: Fail on a foreign PATH link
+  ansible.builtin.assert:
+    that:
+      - not item.stat.exists or (item.stat.islnk and item.stat.lnk_target == item.item.target)
+    fail_msg: >-
+      Refusing to replace {{ item.item.name }}: it resolves to
+      {{ item.stat.lnk_target | default('a non-symlink') }}, expected
+      {{ item.item.target }}.
+  loop: "{{ local_bin_stats.results }}"
+
+- name: Create missing PATH links
+  ansible.builtin.file:
+    src: "{{ item.item.target }}"
+    dest: "{{ ansible_env.HOME }}/.local/bin/{{ item.item.name }}"
+    state: link
+    force: false
+  loop: "{{ local_bin_stats.results }}"
+  when: not item.stat.exists

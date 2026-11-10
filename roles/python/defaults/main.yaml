@@ -1,0 +1,10 @@
+---
+python_packages:
+  - bcrypt==4.2.1
+  - argon2-cffi==23.1.0
+python_venv: "{{ ansible_env.HOME }}/.local/opt/pswd/venv"
+python_ruff_version: "0.15.21"
+python_precommit_version: "4.2.0"
+python_ruff_bin: "{{ ansible_env.HOME }}/.local/bin/ruff"
+python_precommit_bin: "{{ ansible_env.HOME }}/.local/bin/pre-commit"
+python_uv_bin: "{{ ansible_env.HOME }}/.local/bin/uv"

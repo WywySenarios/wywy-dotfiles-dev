@@ -1,0 +1,5 @@
+---
+go_version: "1.27.3"
+go_sha256: 65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40
+go_archive_url: "https://go.dev/dl/go{{ go_version }}.linux-amd64.tar.gz"
+go_root: "{{ ansible_env.HOME }}/.local/opt/go"

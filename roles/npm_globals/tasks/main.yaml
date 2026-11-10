@@ -1,0 +1,28 @@
+---
+- name: Require the Node.js toolchain
+  ansible.builtin.stat:
+    path: "{{ npm_globals_npm_executable }}"
+  register: npm_globals_npm
+  when: not ansible_check_mode
+
+- name: Fail when npm is missing
+  ansible.builtin.assert:
+    that:
+      - npm_globals_npm.stat.exists
+    fail_msg: "npm_globals: install the node role first."
+  when: not ansible_check_mode
+
+- name: Install pinned global packages
+  community.general.npm:
+    name: "{{ item.name }}"
+    version: "{{ item.version }}"
+    global: true
+    state: present
+    executable: "{{ npm_globals_npm_executable }}"
+  loop: "{{ npm_globals_packages }}"
+
+- name: Link global binaries into the user PATH
+  ansible.builtin.include_role:
+    name: local_bin
+  vars:
+    local_bin_links: "{{ npm_globals_links }}"

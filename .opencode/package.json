@@ -1,0 +1,8 @@
+{
+  "name": "wywy-dotfiles-dev-opencode",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@opencode-ai/plugin": "1.17.18"
+  }
+}

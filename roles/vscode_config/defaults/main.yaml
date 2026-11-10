@@ -1,0 +1,4 @@
+---
+vscode_config_user_dir: "{{ ansible_env.HOME }}/.config/Code/User"
+vscode_config_dir: "{{ dotfiles_repo_root }}/constants/.vscode"
+vscode_config_code: /usr/bin/code

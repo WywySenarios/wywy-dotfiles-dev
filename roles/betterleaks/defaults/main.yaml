@@ -1,0 +1,4 @@
+---
+betterleaks_version: "v1.9.0"
+betterleaks_module: github.com/betterleaks/betterleaks
+betterleaks_root: "{{ ansible_env.HOME }}/.local/opt/betterleaks"

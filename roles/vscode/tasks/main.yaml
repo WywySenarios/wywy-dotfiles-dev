@@ -1,0 +1,49 @@
+---
+- name: Ensure the apt keyrings directory exists
+  ansible.builtin.file:
+    path: /usr/share/keyrings
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  become: true
+
+- name: Install the VS Code apt key
+  ansible.builtin.get_url:
+    url: "{{ vscode_repo_key_url }}"
+    dest: "{{ vscode_repo_keyring }}"
+    owner: root
+    group: root
+    mode: "0644"
+  become: true
+
+- name: Add the VS Code apt repository
+  ansible.builtin.deb822_repository:
+    name: vscode
+    types:
+      - deb
+    uris:
+      - https://packages.microsoft.com/repos/code
+    suites:
+      - stable
+    components:
+      - main
+    architectures:
+      - amd64
+    signed_by: "{{ vscode_repo_keyring }}"
+    state: present
+  become: true
+
+- name: Install VS Code
+  ansible.builtin.apt:
+    name: code
+    state: present
+    update_cache: true
+  become: true
+
+- name: Link code into the user PATH
+  ansible.builtin.include_role:
+    name: local_bin
+  vars:
+    local_bin_links:
+      - { name: code, target: /usr/bin/code }

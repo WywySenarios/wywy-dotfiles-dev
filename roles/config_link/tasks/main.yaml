@@ -1,0 +1,66 @@
+---
+- name: Validate the configuration link inputs
+  ansible.builtin.assert:
+    that:
+      - config_link_source is match('^/')
+      - config_link_dest is match('^/')
+    fail_msg: "config_link: source and destination must be absolute paths."
+
+- name: Ensure the destination parent exists
+  ansible.builtin.file:
+    path: "{{ config_link_dest | dirname }}"
+    state: directory
+    mode: "0755"
+
+- name: Stat the destination
+  ansible.builtin.stat:
+    path: "{{ config_link_dest }}"
+    follow: false
+  register: config_link_stat
+
+- name: Refuse a destination that is not a file or symlink
+  ansible.builtin.assert:
+    that:
+      - not (config_link_stat.stat.isdir | default(false))
+      - not (config_link_stat.stat.exists and not config_link_stat.stat.islnk and not config_link_stat.stat.isreg)
+    fail_msg: "Refusing to deploy over {{ config_link_dest }}: it is not a regular file or symlink."
+
+- name: Refuse to retarget a foreign symlink
+  ansible.builtin.assert:
+    that:
+      - not config_link_stat.stat.islnk or config_link_stat.stat.lnk_target == config_link_source
+    fail_msg: >-
+      Refusing to retarget {{ config_link_dest }}: it points to
+      {{ config_link_stat.stat.lnk_target }}, expected {{ config_link_source }}.
+
+- name: Back up a displaced regular file
+  when: config_link_stat.stat.isreg | default(false)
+  block:
+    - name: Stat the backup path
+      ansible.builtin.stat:
+        path: "{{ config_link_dest }}.bak"
+      register: config_link_backup_stat
+
+    - name: Refuse to overwrite an existing backup
+      ansible.builtin.assert:
+        that:
+          - not config_link_backup_stat.stat.exists
+        fail_msg: "Refusing to deploy over {{ config_link_dest }}: {{ config_link_dest }}.bak already exists."
+
+    - name: Move the regular file aside
+      ansible.builtin.command:
+        argv:
+          - mv
+          - "{{ config_link_dest }}"
+          - "{{ config_link_dest }}.bak"
+      changed_when: true
+
+- name: Create the configuration symlink
+  ansible.builtin.file:
+    src: "{{ config_link_source }}"
+    dest: "{{ config_link_dest }}"
+    state: link
+    force: false
+  when: >-
+    not (config_link_stat.stat.islnk | default(false))
+    or (config_link_stat.stat.isreg | default(false))

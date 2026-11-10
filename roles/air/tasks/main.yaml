@@ -1,0 +1,13 @@
+---
+- name: Install air
+  ansible.builtin.include_role:
+    name: artifact
+  vars:
+    artifact_name: air
+    artifact_url: "{{ air_archive_url }}"
+    artifact_sha256: "{{ air_sha256 }}"
+    artifact_root: "{{ air_root }}"
+    artifact_archive: true
+    artifact_strip_components: 1
+    artifact_links:
+      air: air

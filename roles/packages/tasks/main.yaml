@@ -1,0 +1,13 @@
+---
+- name: Ensure required packages are present
+  ansible.builtin.apt:
+    name: "{{ packages_required }}"
+    state: present
+    update_cache: true
+  become: true
+
+- name: Link provisioned executables into the user PATH
+  ansible.builtin.include_role:
+    name: local_bin
+  vars:
+    local_bin_links: "{{ packages_links }}"

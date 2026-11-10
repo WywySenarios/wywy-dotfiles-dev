@@ -1,0 +1,4 @@
+---
+opencode_repo_dir: "{{ dotfiles_repo_root }}/.opencode"
+opencode_plugin_dir: "{{ opencode_repo_dir }}/plugins/opencode-rbash"
+opencode_npm: "{{ ansible_env.HOME }}/.local/opt/node/bin/npm"

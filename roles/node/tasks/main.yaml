@@ -1,0 +1,15 @@
+---
+- name: Install Node.js
+  ansible.builtin.include_role:
+    name: artifact
+  vars:
+    artifact_name: node
+    artifact_url: "{{ node_archive_url }}"
+    artifact_sha256: "{{ node_sha256 }}"
+    artifact_root: "{{ node_root }}"
+    artifact_archive: true
+    artifact_strip_components: 1
+    artifact_links:
+      node: bin/node
+      npm: bin/npm
+      npx: bin/npx

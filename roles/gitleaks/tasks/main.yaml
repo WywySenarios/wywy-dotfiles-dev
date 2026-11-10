@@ -1,0 +1,13 @@
+---
+- name: Install gitleaks
+  ansible.builtin.include_role:
+    name: artifact
+  vars:
+    artifact_name: gitleaks
+    artifact_url: "{{ gitleaks_archive_url }}"
+    artifact_sha256: "{{ gitleaks_sha256 }}"
+    artifact_root: "{{ gitleaks_root }}"
+    artifact_archive: true
+    artifact_strip_components: 0
+    artifact_links:
+      gitleaks: gitleaks

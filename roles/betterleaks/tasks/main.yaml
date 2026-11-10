@@ -1,0 +1,68 @@
+---
+# The Go module checksum database verifies the pinned module, so no separate artifact checksum is pinned here.
+- name: Require the Go toolchain
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/go"
+  register: betterleaks_go
+  when: not ansible_check_mode
+
+- name: Fail when Go is missing
+  ansible.builtin.assert:
+    that:
+      - betterleaks_go.stat.exists
+      - betterleaks_go.stat.executable
+    fail_msg: "betterleaks: install the go role first."
+  when: not ansible_check_mode
+
+- name: Create a staging directory
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: wywy-betterleaks.
+  register: betterleaks_stage
+
+- name: Build betterleaks from the pinned module
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_env.HOME }}/.local/bin/go"
+      - install
+      - "{{ betterleaks_module }}@{{ betterleaks_version }}"
+  environment:
+    GOBIN: "{{ betterleaks_stage.path }}"
+  changed_when: true
+
+- name: Assert the build produced the binary
+  ansible.builtin.stat:
+    path: "{{ betterleaks_stage.path }}/betterleaks"
+  register: betterleaks_built
+
+- name: Fail when the build produced no binary
+  ansible.builtin.assert:
+    that:
+      - betterleaks_built.stat.exists
+      - betterleaks_built.stat.executable
+    fail_msg: "betterleaks: go install produced no executable."
+
+- name: Ensure the tool root exists
+  ansible.builtin.file:
+    path: "{{ betterleaks_root }}"
+    state: directory
+    mode: "0755"
+
+- name: Install the binary
+  ansible.builtin.copy:
+    src: "{{ betterleaks_stage.path }}/betterleaks"
+    dest: "{{ betterleaks_root }}/betterleaks"
+    remote_src: true
+    mode: "0755"
+
+- name: Link betterleaks into the user PATH
+  ansible.builtin.include_role:
+    name: local_bin
+  vars:
+    local_bin_links:
+      - { name: betterleaks, target: "{{ betterleaks_root }}/betterleaks" }
+
+- name: Remove the staging directory
+  ansible.builtin.file:
+    path: "{{ betterleaks_stage.path }}"
+    state: absent
