@@ -1,0 +1,7 @@
+---
+- name: Link the git configuration
+  ansible.builtin.include_role:
+    name: config_link
+  vars:
+    config_link_source: "{{ git_config_source }}"
+    config_link_dest: "{{ git_config_dest }}"

@@ -23,6 +23,7 @@
 | `npm_globals`   | Pinned prettier and opencode-ai.                                                |
 | `opencode`      | opencode config and plugin dependencies.                                        |
 | `shell`         | bash entry links and machine-local bash overrides.                              |
+| `git_config`    | Git configuration link.                                                         |
 
 ## Variables
 

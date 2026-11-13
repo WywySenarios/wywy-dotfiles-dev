@@ -1,0 +1,22 @@
+[credential "https://github.com"]
+	helper =
+	helper = !gh auth git-credential
+
+[credential "https://gist.github.com"]
+	helper =
+	helper = !gh auth git-credential
+
+[core]
+	editor = vim
+
+[credential "https://github.com"]
+        helper = 
+        helper = !/home/eric/.local/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+        helper = 
+        helper = !/home/eric/.local/bin/gh auth git-credential
+[core]
+        editor = vim
+[user]
+        name = Eric Zhu
+        email = wywyericzhu@gmail.com

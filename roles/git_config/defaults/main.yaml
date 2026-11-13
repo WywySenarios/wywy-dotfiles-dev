@@ -1,0 +1,3 @@
+---
+git_config_source: "{{ dotfiles_repo_root }}/.gitconfig"
+git_config_dest: "{{ ansible_env.HOME }}/.gitconfig"
