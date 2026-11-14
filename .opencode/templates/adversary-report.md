@@ -36,7 +36,9 @@ Plan reviews (the `plan-adversary` agent) extend the severity table with these a
 
 - a **loud transcription defect** — a plan-text error (typo, wrong name, stale path) that contradicts the repository on contact (nonexistent path, unresolvable symbol) and would be caught by the executor within seconds — is **SEV-4**, **P1**, and triggers `Revise` but never `Block`. Loud transcription defects are **mechanically fixable**: the Suggested Action carries the corrected value, and the fix is verified by resolving the reference against the repository — no re-audit is required when they are the only findings (a _transcription-only_ revision).
 - a **silent wrong-target defect** — a plan-text error that is internally coherent but resolves to a different existing target and would execute without error against the wrong file, symbol, or data — receives **full severity by real outcome** (SEV-1 when it could cause data loss, corruption, a security breach, or total outage)
-- a **speculative risk** — a hypothetical concern not evidenced by the plan or the repository — is **SEV-5** at most
+- an **out-of-scope finding** — a concern the plan's `Target State` does not require, or that its `Non-Goals` explicitly excludes — is **SEV-5**, **P3**, and **advisory**: it never counts toward the verdict. Record it under "Advisory / Out-of-Scope", not in the Issues table.
+- a **scope-expansion defect** — a plan phase, dependency, or artifact not traceable to the `Target State`, or a Suggested Action that would require new scope without user approval — is **SEV-2**, **P1**. The defect is the growth, not the missing capability.
+- a **speculative risk** — a hypothetical concern not evidenced by the plan or the repository — is **SEV-5** at most and advisory
 
 ### Priority: P0 through P3
 
@@ -49,7 +51,7 @@ Plan reviews (the `plan-adversary` agent) extend the severity table with these a
 
 ## Holistic Score
 
-The holistic score is an **objective, issue-derived health score** from 0.0 to 10.0. It measures the _materiality_ of the defects found, not the verdict. A clean target with no issues scores 10.0. The score informs, but never decides, the verdict.
+The holistic score is an **objective, issue-derived health score** from 0.0 to 10.0. It measures the _materiality_ of the defects found, not the verdict. A clean target with no issues scores 10.0. The score informs the verdict and can force `Revise`, but it never forces `Block`.
 
 ### Computation
 
@@ -82,20 +84,26 @@ Example: a single SEV-2/P1 issue deducts `max(-2.0, -1.0)` = **-2.0**, not -3.0.
 | 1-3.9 | **Broken**   | Major defects. Do not proceed without a redesign. |
 | 0     | **Redesign** | Redesign required.                                |
 
-The **score is not the verdict**. A 0.0 score does not imply `Block`: `Block` requires a SEV-1 issue. If the score floors with no SEV-1, still render `Revise`. The score measures materiality; the verdict decides whether the target may proceed.
+The **score is a verdict input, not the whole verdict**. A 0.0 score does not imply `Block`: `Block` requires a SEV-1 issue. A score below 7.0 forces `Revise` even when no single severe issue dominates; a score of 7.0 or higher still yields `Revise` when a SEV-2 or P0 issue is present.
 
 ### Verdict thresholds
 
-The verdict is derived deterministically from the issues found (severity and priority), **not** from the score. Apply the first matching row from top to bottom:
+The verdict is derived deterministically from the issues found (severity and priority) and the score. Apply the first matching row from top to bottom:
 
-| Verdict    | Trigger                                                                              |
-| ---------- | ------------------------------------------------------------------------------------ |
-| **Block**  | Any SEV-1 issue.                                                                     |
-| **Revise** | Any SEV-2 or SEV-3 issue, any P0 or P1 issue.                                        |
-| **Pass**   | No SEV-1/2/3 issues and no P0/P1 issues. The holistic score is not a pass criterion. |
+| Verdict    | Trigger                                                                                                                     |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **Block**  | Any SEV-1 issue.                                                                                                            |
+| **Revise** | Any SEV-2, any P0, any silent wrong-target defect, any loud transcription defect (SEV-4/P1), or a holistic score below 7.0. |
+| **Pass**   | No SEV-1/2 issues, no P0 issues, no wrong-target or transcription defects, and a holistic score of 7.0 or higher.           |
+
+SEV-3/4/5 and P1/P2/P3 findings do not trigger `Revise` on their own, but they
+count toward the score, and enough of them can push it below 7.0. The exceptions are
+silent wrong-target and loud transcription defects, which force `Revise` even below
+SEV-2 (SEV-1 still means `Block`). Out-of-scope findings never count toward the verdict.
 
 The review target is not ready until the verdict is **Pass**. A `Revise` report must
 list exactly what must change to reach `Pass`; a `Block` report ends the audit.
+Out-of-scope items are not required to reach `Pass`.
 
 ## Report file
 
@@ -120,6 +128,7 @@ input: <name or path of what was reviewed>
 verdict: pass | revise | block
 holistic_score: <X.X out of 10.0>
 issue_count: <N>
+advisory_count: <N>
 sev1_count: <N>
 sev2_count: <N>
 sev3_count: <N>
@@ -139,9 +148,10 @@ The full report content goes after the frontmatter.
 ## Report discipline
 
 - **At most 8 issues**, listed **highest severity first** (ties: highest priority first). Drop or merge findings beyond the 8 most material.
+- **At most 5 advisory items.** Advisory items do not consume the 8-issue budget and never affect the verdict.
 - **Description cells ≤ 200 characters.** Move detail to the corresponding failure-proof row.
 - **One finding, once.** Each finding appears in the Issues table; the failure proof gives evidence; the Summary states the bottom line. Do not restate a finding's full description in more than one section.
-- **One Suggested Action per issue**, highest severity first. Do not restate the issue description in the action.
+- **One Suggested Action per issue**, highest severity first. Do not restate the issue description in the action. Each action is the **minimal change** that resolves the finding and does not bundle unrelated improvements or propose work the target does not need.
 
 ### Unified report body template
 
@@ -172,6 +182,14 @@ The full report content goes after the frontmatter.
 ### Suggested Actions
 
 1. <one action per issue, highest severity first>
+
+### Advisory / Out-of-Scope
+
+| #   | Target     | Description                                   |
+| --- | ---------- | --------------------------------------------- |
+| 1   | `<target>` | `<concern the plan does not need to address>` |
+
+Advisory items never affect the verdict. Omit the section when there are none.
 ```
 
 ## Conversational Output
@@ -209,4 +227,12 @@ When the report is delivered in-chat rather than persisted, use this variant:
 ### Suggested Actions
 
 1. <one action per issue, highest severity first>
+
+### Advisory / Out-of-Scope
+
+| #   | Target     | Description                                   |
+| --- | ---------- | --------------------------------------------- |
+| 1   | `<target>` | `<concern the plan does not need to address>` |
+
+Advisory items never affect the verdict. Omit the section when there are none.
 ```
