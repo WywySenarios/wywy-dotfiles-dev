@@ -1,0 +1,5 @@
+---
+- name: Refresh the apt cache after adding the Docker repository
+  ansible.builtin.apt:
+    update_cache: true
+  become: true

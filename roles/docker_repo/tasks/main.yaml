@@ -1,9 +1,15 @@
 ---
+- name: Check whether the apt package index is populated
+  ansible.builtin.find:
+    paths: /var/lib/apt/lists
+    patterns: "*_InRelease"
+  register: docker_repo_index
+
 - name: Ensure python3-debian is present
   ansible.builtin.apt:
     name: python3-debian
     state: present
-    update_cache: true
+    update_cache: "{{ docker_repo_index.matched == 0 }}"
   become: true
 
 - name: Ensure the apt keyrings directory exists
@@ -38,4 +44,8 @@
     architectures: "{{ docker_repo_architectures }}"
     signed_by: "{{ docker_repo_keyring }}"
     state: present
+  notify: Refresh the apt cache after adding the Docker repository
   become: true
+
+- name: Apply the Docker apt cache refresh before installing Docker packages
+  ansible.builtin.meta: flush_handlers

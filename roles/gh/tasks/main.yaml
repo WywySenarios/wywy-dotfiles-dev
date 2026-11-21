@@ -32,13 +32,14 @@
       - amd64
     signed_by: "{{ gh_repo_keyring }}"
     state: present
+  register: gh_repo_added
   become: true
 
 - name: Install GitHub CLI
   ansible.builtin.apt:
     name: gh
     state: present
-    update_cache: true
+    update_cache: "{{ gh_repo_added.changed }}"
   become: true
 
 - name: Link gh into the user PATH

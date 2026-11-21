@@ -3,7 +3,6 @@
   ansible.builtin.apt:
     name: "{{ packages_required }}"
     state: present
-    update_cache: true
   become: true
 
 - name: Link provisioned executables into the user PATH
