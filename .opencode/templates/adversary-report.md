@@ -3,8 +3,8 @@
 This is the shared specification for adversary reports. It is loaded into every
 agent's context so that all agents know what an adversary report looks like and
 can read, produce, or interpret one. The adversary agents (`plan-adversary`,
-`adversary`) follow this exactly; every other agent can rely on reports
-matching this format.
+`adversary`) and the `code-reviewer` agent follow this exactly; every other agent
+can rely on reports matching this format.
 
 ## Severity & Priority Scale
 
@@ -39,6 +39,17 @@ Plan reviews (the `plan-adversary` agent) extend the severity table with these a
 - an **out-of-scope finding** — a concern the plan's `Target State` does not require, or that its `Non-Goals` explicitly excludes — is **SEV-5**, **P3**, and **advisory**: it never counts toward the verdict. Record it under "Advisory / Out-of-Scope", not in the Issues table.
 - a **scope-expansion defect** — a plan phase, dependency, or artifact not traceable to the `Target State`, or a Suggested Action that would require new scope without user approval — is **SEV-2**, **P1**. The defect is the growth, not the missing capability.
 - a **speculative risk** — a hypothetical concern not evidenced by the plan or the repository — is **SEV-5** at most and advisory
+
+### Severity anchors for diff reviews
+
+Diff reviews (the `code-reviewer` agent) extend the severity table with these anchors:
+
+- an **unjustified dependency change** — a manifest or lockfile change with no traceable reason in the diff — is **SEV-3**, **P1**
+- a **multi-purpose commit** — a commit whose purpose cannot be stated in one sentence without an "and" (unrelated changes, behavior mixed with refactor, unpaired lockfile churn) — is **SEV-3**, **P1**: an overwhelming diff is a reviewability defect, not a stylistic nit
+- an **unsafe, vulnerable, or unpinned dependency** — receives **full severity by real outcome** (SEV-1 when it exposes a supply-chain or exploit path)
+- a **misasserted test** — a new or changed test whose assertion cannot fail on the claimed regression (tautological, over-mocked, or asserting the wrong thing) — is **SEV-3**, **P1**
+- a **false comment or doc claim** — a comment or docstring that disagrees with the code — is **SEV-2**, **P1** when it can mislead a caller into unsafe use; otherwise **SEV-3**
+- an **untouched pre-existing defect** — a problem visible in the surrounding code but not introduced, worsened, or made reachable by the diff — is **SEV-5**, **P3**, and advisory
 
 ### Priority: P0 through P3
 
@@ -115,6 +126,7 @@ The `adversary/` subdirectory is the **default and only** report location. Creat
 
 - `mode: plan-review` → `<plan-name>.md`
 - `mode: code-review` → `<input-base>-<YYYY-MM-DD>.md` (the input's basename without extension, date-stamped; no "adversary" or "code-review" in the filename)
+- `mode: diff-review` → `<review-label>-<YYYY-MM-DD>.md` (the branch name or short commit sha, date-stamped; never the plan name, which leaks intent into a blind review)
 - `mode: plan-outcome-review` → `<plan-name>-<YYYY-MM-DD>.md` (the reviewed plan's basename without extension, date-stamped; distinct from the plan-review report at `<plan-name>.md`)
 
 ### Frontmatter
@@ -123,7 +135,7 @@ Reports must have a YAML frontmatter.
 
 ```yaml
 timestamp: <ISO-8601 with timezone>
-mode: plan-review | code-review | plan-outcome-review
+mode: plan-review | code-review | diff-review | plan-outcome-review
 input: <name or path of what was reviewed>
 verdict: pass | revise | block
 holistic_score: <X.X out of 10.0>
@@ -162,7 +174,7 @@ The full report content goes after the frontmatter.
 | --- | ---------- | -------- | -------- | -------------------- |
 | 1   | `<target>` | SEV-2    | P1       | `<what, where, why>` |
 
-`<target>` is a cycle/phase for plan reviews; a `file:line` for code/design reviews; a `file:line` (code issues) or `<cycle>/<property>` (fulfillment gaps) for plan-outcome reviews.
+`<target>` is a cycle/phase for plan reviews; a `file:line` for code/design reviews; a `file:line` or `<dependency>` for diff reviews; a `file:line` (code issues) or `<cycle>/<property>` (fulfillment gaps) for plan-outcome reviews.
 
 ### Failure proofs
 

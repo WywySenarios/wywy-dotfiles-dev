@@ -100,7 +100,7 @@ Phase-specific Notes/Next item text — use the matching variant for the phase y
 
 ## Cycle report — plan complete
 
-Used when the last plan item has finished all phases. When the cycle agent ran adversary validation at exhaustion, append the **Adversary validation** block below the total test results. Omit the block when validation could not run.
+Used when the last plan item has finished all phases. When the cycle agent ran adversary validation at exhaustion, append the **Adversary validation** block below the total test results. When it also ran the plan-blind diff review, append the **Code review** block after the Adversary validation block. Omit either block when that step could not run.
 
 ```md
 ## CYCLE — plan complete
@@ -125,9 +125,15 @@ Used when the last plan item has finished all phases. When the cycle agent ran a
 | Verdict | Score  | Report                                                                |
 | ------- | ------ | --------------------------------------------------------------------- |
 | Revise  | 6.5/10 | `${PLAN_STORAGE_PATH:-~/plans}/adversary/<plan-name>-<YYYY-MM-DD>.md` |
+
+**Code review (plan-blind):**
+
+| Verdict | Score  | Report                                                                   |
+| ------- | ------ | ------------------------------------------------------------------------ |
+| Revise  | 6.5/10 | `${PLAN_STORAGE_PATH:-~/plans}/adversary/<review-label>-<YYYY-MM-DD>.md` |
 ```
 
-The adversary's full report is relayed alongside this digest using the conversational format from the `adversary-report` template.
+The adversary's and code-reviewer's full reports are relayed alongside this digest using the conversational format from the `adversary-report` template.
 
 ## Test edit report
 
